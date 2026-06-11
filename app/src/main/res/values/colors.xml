@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_primary">#5E35B1</color>
+    <color name="teal_secondary">#00ACC1</color>
+    <color name="strain_low">#4CAF50</color>
+    <color name="strain_moderate">#FF9800</color>
+    <color name="strain_high">#F44336</color>
+    <color name="neural_bg">#0F0F1A</color>
+    <color name="neural_surface">#1A1A2E</color>
+    <color name="white">#FFFFFF</color>
+</resources>

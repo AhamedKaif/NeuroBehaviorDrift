@@ -1,0 +1,4 @@
+-keep class com.neurobehavior.drift.** { *; }
+-keep class org.tensorflow.lite.** { *; }
+-keepattributes *Annotation*
+-dontwarn org.tensorflow.lite.**
