@@ -38,7 +38,7 @@ jobs:
       - name: Install Appium & Drivers
         run: |
           npm install -g appium
-          appium driver install uiautomator2
+          appium driver install uiautomator2@2
 
       - name: Build Android App (APK)
         run: |
