@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 }
 rootProject.name = "NeuroBehaviorDrift"
 include(":app")
+include(":appium-tests")

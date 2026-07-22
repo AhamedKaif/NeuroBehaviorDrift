@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
+<suite name="NeuroBehaviorDrift Mobile Automation Suite" parallel="none">
+    
+    <listeners>
+        <listener class-name="com.neurobehavior.drift.automation.listeners.TestListener" />
+        <listener class-name="com.neurobehavior.drift.automation.listeners.AnnotationTransformer" />
+    </listeners>
+
+    <test name="Appium Functional Tests">
+        <classes>
+            <class name="com.neurobehavior.drift.automation.tests.AuthenticationTests" />
+            <class name="com.neurobehavior.drift.automation.tests.RegistrationTests" />
+            <class name="com.neurobehavior.drift.automation.tests.DashboardAndNavigationTests" />
+            <class name="com.neurobehavior.drift.automation.tests.ProfileTests" />
+            <class name="com.neurobehavior.drift.automation.tests.SettingsAndPermissionsTests" />
+            <class name="com.neurobehavior.drift.automation.tests.DeviceAndLifecycleTests" />
+            <class name="com.neurobehavior.drift.automation.tests.BoundaryAndNegativeTests" />
+        </classes>
+    </test>
+</suite>

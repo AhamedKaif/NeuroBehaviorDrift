@@ -3,3 +3,9 @@
 /app/build/
 /app/build/intermediates/javac/debug/compileDebugJavaWithJavac/classes/
 /app/build/intermediates/javac/debugAndroidTest/compileDebugAndroidTestJavaWithJavac/classes/
+/appium-tests/build/
+/appium-tests/reports/
+/appium-tests/screenshots/
+/appium-tests/screenrecordings/
+/appium-tests/logs/
+/appium-tests/allure-results/
