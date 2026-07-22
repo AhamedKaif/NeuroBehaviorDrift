@@ -17,11 +17,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.neurobehavior.drift.ui.theme.NeuralPurple
 import com.neurobehavior.drift.ui.theme.StrainLow
+import com.neurobehavior.drift.ui.navigation.NavRoutes
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,11 +32,12 @@ fun SettingsScreen(navController: NavController, vm: SettingsViewModel = hiltVie
     val s by vm.state.collectAsStateWithLifecycle()
     val ctx = LocalContext.current
     var showClear by remember { mutableStateOf(false) }
+    var isDarkMode by remember { mutableStateOf(true) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Settings", fontWeight = FontWeight.Bold) },
+                title = { Text("Settings", fontWeight = FontWeight.Bold, modifier = Modifier.semantics { this.contentDescription = "Settings Header" }) },
                 navigationIcon = { IconButton({ navController.popBackStack() }) { Icon(Icons.Default.ArrowBack,"Back") } },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
             )
@@ -42,9 +46,13 @@ fun SettingsScreen(navController: NavController, vm: SettingsViewModel = hiltVie
         Column(Modifier.padding(pad).fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
 
+            SectionLabel("Theme Settings")
+            ToggleRow(Icons.Default.DarkMode, "Dark Mode",
+                "Enable dark theme colors", isDarkMode, "Dark Mode Toggle Switch") { isDarkMode = it }
+
             SectionLabel("Notifications")
             ToggleRow(Icons.Default.Notifications, "High Strain Alerts",
-                "Notify when cognitive strain exceeds threshold", s.strainAlertsEnabled) { vm.setStrainAlerts(it) }
+                "Notify when cognitive strain exceeds threshold", s.strainAlertsEnabled, "Notification Toggle Switch") { vm.setStrainAlerts(it) }
             if (s.strainAlertsEnabled) {
                 Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
                     Column(Modifier.padding(16.dp)) {
@@ -75,13 +83,23 @@ fun SettingsScreen(navController: NavController, vm: SettingsViewModel = hiltVie
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(.7f))
                 }
             }
-            ActionRow(Icons.Default.Security, "Usage Access Permission", "Required for behavior tracking", "Manage") {
+            ActionRow(Icons.Default.Security, "Usage Access Permission", "Required for behavior tracking", "Manage", contentDescription = "Request Permissions Button") {
                 ctx.startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
             }
 
             SectionLabel("Data Management")
             ActionRow(Icons.Default.DeleteForever, "Clear All Data",
-                "Remove all history and reset baseline", "Clear", Color(0xFFF44336)) { showClear = true }
+                "Remove all history and reset baseline", "Clear", Color(0xFFF44336), contentDescription = "Clear Cache Button") { showClear = true }
+
+            SectionLabel("Account Settings")
+            ActionRow(Icons.Default.Logout, "Logout",
+                "Sign out of your session", "Logout", Color(0xFFF44336), contentDescription = "Logout Button") {
+                vm.logout {
+                    navController.navigate(NavRoutes.Splash.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
+            }
 
             SectionLabel("About")
             InfoRow(Icons.Default.Info, "Version", "1.0.0")
@@ -106,7 +124,7 @@ fun SettingsScreen(navController: NavController, vm: SettingsViewModel = hiltVie
         fontWeight = FontWeight.SemiBold, modifier = Modifier.padding(top = 8.dp))
 }
 
-@Composable fun ToggleRow(icon: ImageVector, title: String, sub: String, checked: Boolean, onChange: (Boolean) -> Unit) {
+@Composable fun ToggleRow(icon: ImageVector, title: String, sub: String, checked: Boolean, contentDescription: String? = null, onChange: (Boolean) -> Unit) {
     Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, null, Modifier.size(22.dp), MaterialTheme.colorScheme.primary)
@@ -116,7 +134,12 @@ fun SettingsScreen(navController: NavController, vm: SettingsViewModel = hiltVie
                 Text(sub, style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(.6f))
             }
-            Switch(checked, onChange)
+            val modifier = if (contentDescription != null) {
+                Modifier.semantics { this.contentDescription = contentDescription }
+            } else {
+                Modifier
+            }
+            Switch(checked, onChange, modifier = modifier)
         }
     }
 }
@@ -135,7 +158,7 @@ fun SettingsScreen(navController: NavController, vm: SettingsViewModel = hiltVie
 }
 
 @Composable fun ActionRow(icon: ImageVector, title: String, sub: String, label: String,
-                          tintColor: Color = MaterialTheme.colorScheme.primary, onAction: () -> Unit) {
+                          tintColor: Color = MaterialTheme.colorScheme.primary, contentDescription: String? = null, onAction: () -> Unit) {
     Card(Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, null, Modifier.size(22.dp), tintColor)
@@ -144,7 +167,12 @@ fun SettingsScreen(navController: NavController, vm: SettingsViewModel = hiltVie
                 Text(title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
                 Text(sub, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurface.copy(.6f))
             }
-            TextButton(onAction, colors = ButtonDefaults.textButtonColors(tintColor)) { Text(label) }
+            val modifier = if (contentDescription != null) {
+                Modifier.semantics { this.contentDescription = contentDescription }
+            } else {
+                Modifier
+            }
+            TextButton(onAction, modifier = modifier, colors = ButtonDefaults.textButtonColors(tintColor)) { Text(label) }
         }
     }
 }

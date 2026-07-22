@@ -58,7 +58,8 @@ fun DashboardScreen(navController: NavController, viewModel: DashboardViewModel 
                     title = "Neuro",
                     subtitle = "Cognitive Wellness AI",
                     onRefresh = { viewModel.refresh() },
-                    onSettings = { navController.navigate(NavRoutes.Settings.route) }
+                    onSettings = { navController.navigate(NavRoutes.Settings.route) },
+                    onOpenDrawer = { navController.navigate(NavRoutes.Profile.route) }
                 )
             },
             bottomBar = { PremiumFloatingBottomBar(navController) }

@@ -24,6 +24,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.neurobehavior.drift.ui.navigation.NavRoutes
 import com.neurobehavior.drift.ui.theme.*
 
@@ -73,22 +75,26 @@ fun PremiumFloatingBottomBar(navController: NavController) {
             BottomNavItem(
                 icon = Icons.Default.Dashboard,
                 isSelected = currentRoute == NavRoutes.Dashboard.route,
+                contentDescription = "Bottom Nav Home",
                 onClick = { navController.navigate(NavRoutes.Dashboard.route) }
             )
             BottomNavItem(
                 icon = Icons.Default.BarChart,
                 isSelected = currentRoute == NavRoutes.Analytics.route,
+                contentDescription = "Bottom Nav Analytics",
                 onClick = { navController.navigate(NavRoutes.Analytics.route) }
             )
             BottomNavItem(
                 icon = Icons.AutoMirrored.Filled.ShowChart,
                 isSelected = currentRoute == NavRoutes.DriftAnalysis.route,
+                contentDescription = "Bottom Nav Drift",
                 onClick = { navController.navigate(NavRoutes.DriftAnalysis.route) }
             )
             BottomNavItem(
-                icon = Icons.Default.Lightbulb,
-                isSelected = currentRoute == NavRoutes.Recommendations.route,
-                onClick = { navController.navigate(NavRoutes.Recommendations.route) }
+                icon = Icons.Default.Settings,
+                isSelected = currentRoute == NavRoutes.Settings.route,
+                contentDescription = "Bottom Nav Settings",
+                onClick = { navController.navigate(NavRoutes.Settings.route) }
             )
         }
     }
@@ -98,6 +104,7 @@ fun PremiumFloatingBottomBar(navController: NavController) {
 private fun BottomNavItem(
     icon: ImageVector,
     isSelected: Boolean,
+    contentDescription: String,
     onClick: () -> Unit
 ) {
     val background = if (isSelected) PremiumGradient else Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
@@ -108,6 +115,7 @@ private fun BottomNavItem(
             .size(48.dp)
             .clip(CircleShape)
             .background(background)
+            .semantics { this.contentDescription = contentDescription }
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center
     ) {
@@ -125,7 +133,8 @@ fun PremiumTopBar(
     title: String,
     subtitle: String,
     onRefresh: () -> Unit,
-    onSettings: () -> Unit
+    onSettings: () -> Unit,
+    onOpenDrawer: () -> Unit
 ) {
     Row(
         modifier = Modifier
@@ -134,18 +143,31 @@ fun PremiumTopBar(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Column {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.labelMedium,
-                color = Color.White.copy(alpha = 0.6f)
-            )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(
+                onClick = onOpenDrawer,
+                modifier = Modifier
+                    .semantics { this.contentDescription = "Open Navigation Drawer" }
+                    .clip(CircleShape)
+                    .background(GlassColor)
+            ) {
+                Icon(Icons.Default.Menu, contentDescription = "Open Navigation Drawer", tint = Color.White)
+            }
+            Spacer(Modifier.width(12.dp))
+            Column {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    modifier = Modifier.semantics { this.contentDescription = "Dashboard Header" }
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = Color.White.copy(alpha = 0.6f)
+                )
+            }
         }
         Row {
             IconButton(

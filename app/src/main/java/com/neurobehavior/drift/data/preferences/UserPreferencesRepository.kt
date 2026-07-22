@@ -20,7 +20,11 @@ data class UserPreferences(
     val nightAlertsEnabled: Boolean = true,
     val trackingEnabled: Boolean = true,
     val retentionDays: Int = 30,
-    val onboardingComplete: Boolean = false
+    val onboardingComplete: Boolean = false,
+    val jwtToken: String = "",
+    val username: String = "",
+    val fullName: String = "",
+    val email: String = ""
 )
 
 @Singleton
@@ -34,6 +38,10 @@ class UserPreferencesRepository @Inject constructor(
         val TRACKING        = booleanPreferencesKey("tracking_enabled")
         val RETENTION_DAYS  = intPreferencesKey("retention_days")
         val ONBOARDING      = booleanPreferencesKey("onboarding_complete")
+        val JWT_TOKEN       = stringPreferencesKey("jwt_token")
+        val USERNAME        = stringPreferencesKey("username")
+        val FULL_NAME       = stringPreferencesKey("full_name")
+        val EMAIL           = stringPreferencesKey("email")
     }
 
     val userPreferencesFlow: Flow<UserPreferences> = context.dataStore.data
@@ -45,7 +53,11 @@ class UserPreferencesRepository @Inject constructor(
                 nightAlertsEnabled  = prefs[Keys.NIGHT_ALERTS] ?: true,
                 trackingEnabled     = prefs[Keys.TRACKING] ?: true,
                 retentionDays       = prefs[Keys.RETENTION_DAYS] ?: 30,
-                onboardingComplete  = prefs[Keys.ONBOARDING] ?: false
+                onboardingComplete  = prefs[Keys.ONBOARDING] ?: false,
+                jwtToken            = prefs[Keys.JWT_TOKEN] ?: "",
+                username            = prefs[Keys.USERNAME] ?: "",
+                fullName            = prefs[Keys.FULL_NAME] ?: "",
+                email               = prefs[Keys.EMAIL] ?: ""
             )
         }
 
@@ -63,5 +75,26 @@ class UserPreferencesRepository @Inject constructor(
     }
     suspend fun setOnboardingComplete(complete: Boolean) {
         context.dataStore.edit { it[Keys.ONBOARDING] = complete }
+    }
+    suspend fun saveAuth(token: String, username: String, fullName: String, email: String) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.JWT_TOKEN] = token
+            prefs[Keys.USERNAME] = username
+            prefs[Keys.FULL_NAME] = fullName
+            prefs[Keys.EMAIL] = email
+        }
+    }
+    suspend fun updateProfileInfo(fullName: String) {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.FULL_NAME] = fullName
+        }
+    }
+    suspend fun clearAuth() {
+        context.dataStore.edit { prefs ->
+            prefs[Keys.JWT_TOKEN] = ""
+            prefs[Keys.USERNAME] = ""
+            prefs[Keys.FULL_NAME] = ""
+            prefs[Keys.EMAIL] = ""
+        }
     }
 }

@@ -44,4 +44,10 @@ class SettingsViewModel @Inject constructor(
     fun setNightAlerts(v: Boolean)    { viewModelScope.launch { prefs.setNightAlertsEnabled(v) } }
     fun setTracking(v: Boolean)       { viewModelScope.launch { prefs.setTrackingEnabled(v) } }
     fun clearAllData()                { viewModelScope.launch { repo.clearAllData() } }
+    fun logout(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            prefs.clearAuth()
+            onSuccess()
+        }
+    }
 }
