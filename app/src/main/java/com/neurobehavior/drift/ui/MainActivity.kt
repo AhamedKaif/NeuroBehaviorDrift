@@ -88,6 +88,29 @@ class MainActivity : ComponentActivity() {
                 return true
             }
 
+            override fun shouldInterceptRequest(
+                view: WebView?,
+                request: WebResourceRequest?
+            ): WebResourceResponse? {
+                val url = request?.url?.toString() ?: return null
+                if (url.contains("/neuro-behavioral-drift/")) {
+                    val newUrl = url.replace("/neuro-behavioral-drift/", "/")
+                    try {
+                        val connection = java.net.URL(newUrl).openConnection() as java.net.HttpURLConnection
+                        connection.requestMethod = request?.method ?: "GET"
+                        request?.requestHeaders?.forEach { (key, value) ->
+                            connection.setRequestProperty(key, value)
+                        }
+                        val mimeType = connection.contentType?.split(";")?.get(0) ?: "application/javascript"
+                        val encoding = connection.contentEncoding ?: "UTF-8"
+                        return WebResourceResponse(mimeType, encoding, connection.inputStream)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+                return super.shouldInterceptRequest(view, request)
+            }
+
             override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
                 super.onPageStarted(view, url, favicon)
                 progressBar.visibility = View.VISIBLE
