@@ -43,8 +43,10 @@ public class TestListener implements ITestListener {
         ExtentReportManager.setTest(extentTest);
         
         // Start screen recording for the test
-        AndroidDriver driver = DriverFactory.getDriver();
-        VideoRecordUtility.startRecording(driver);
+        AndroidDriver driver = DriverFactory.getDriverOrNull();
+        if (driver != null) {
+            VideoRecordUtility.startRecording(driver);
+        }
     }
 
     @Override
@@ -60,8 +62,10 @@ public class TestListener implements ITestListener {
         logToExcel(result, "PASS", "N/A", "N/A", "N/A");
         
         // Clean up video recording
-        AndroidDriver driver = DriverFactory.getDriver();
-        VideoRecordUtility.stopRecording(driver, methodName); // Just stop, no need to keep success videos
+        AndroidDriver driver = DriverFactory.getDriverOrNull();
+        if (driver != null) {
+            VideoRecordUtility.stopRecording(driver, methodName); // Just stop, no need to keep success videos
+        }
         ExtentReportManager.removeTest();
     }
 
@@ -70,9 +74,13 @@ public class TestListener implements ITestListener {
         String methodName = result.getMethod().getMethodName();
         log.error("Test FAILED: " + methodName, result.getThrowable());
         
-        AndroidDriver driver = DriverFactory.getDriver();
-        String screenshotPath = ScreenshotUtility.captureScreenshot(driver, methodName);
-        String videoPath = VideoRecordUtility.stopRecording(driver, methodName);
+        AndroidDriver driver = DriverFactory.getDriverOrNull();
+        String screenshotPath = "N/A";
+        String videoPath = "N/A";
+        if (driver != null) {
+            screenshotPath = ScreenshotUtility.captureScreenshot(driver, methodName);
+            videoPath = VideoRecordUtility.stopRecording(driver, methodName);
+        }
         
         String failureReason = result.getThrowable() != null ? result.getThrowable().getMessage() : "Unknown exception";
         
@@ -99,13 +107,25 @@ public class TestListener implements ITestListener {
     public void onTestSkipped(ITestResult result) {
         String methodName = result.getMethod().getMethodName();
         log.warn("Test SKIPPED: " + methodName);
+        if (result.getThrowable() != null) {
+            log.warn("Skip cause: ", result.getThrowable());
+        }
+        
+        AndroidDriver driver = DriverFactory.getDriverOrNull();
+        String screenshotPath = "N/A";
+        if (driver != null) {
+            screenshotPath = ScreenshotUtility.captureScreenshot(driver, methodName + "_skip");
+        }
         
         ExtentTest t = ExtentReportManager.getTest();
         if (t != null) {
             t.log(Status.SKIP, "Test skipped.");
+            if (!"N/A".equals(screenshotPath)) {
+                t.addScreenCaptureFromPath(screenshotPath, "Skip Screenshot");
+            }
         }
         
-        logToExcel(result, "SKIPPED", "N/A", "N/A", "Was retried or skipped");
+        logToExcel(result, "SKIPPED", screenshotPath, "N/A", "Was retried or skipped");
         ExtentReportManager.removeTest();
     }
 
@@ -131,7 +151,7 @@ public class TestListener implements ITestListener {
         long durationMs = result.getEndMillis() - result.getStartMillis();
         String execTime = String.format("%.2f s", durationMs / 1000.0);
         
-        AndroidDriver driver = DriverFactory.getDriver();
+        AndroidDriver driver = DriverFactory.getDriverOrNull();
         String deviceName = "N/A";
         String osVersion = "N/A";
         if (driver != null) {

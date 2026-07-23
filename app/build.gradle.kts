@@ -61,6 +61,9 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+        jniLibs {
+            useLegacyPackaging = true
+        }
     }
 }
 
@@ -104,6 +107,7 @@ dependencies {
     implementation(libs.vico.core)
 
     implementation(libs.androidx.datastore.preferences)
+    implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
     testImplementation(libs.junit)
 

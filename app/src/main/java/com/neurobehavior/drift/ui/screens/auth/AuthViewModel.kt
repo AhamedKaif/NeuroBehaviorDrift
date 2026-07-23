@@ -71,6 +71,15 @@ class AuthViewModel @Inject constructor(
         password: String,
         age: String,
         occupation: String,
+        gender: String = "Prefer not to say",
+        institution: String = "",
+        department: String = "",
+        academicYear: String = "",
+        workingHours: String = "",
+        avgScreenTime: String = "",
+        avgSleepHours: String = "",
+        preferredWorkTime: String = "Morning",
+        stressLevel: Int = 5,
         onSuccess: () -> Unit
     ) {
         if (fullName.isBlank() || email.isBlank() || username.isBlank() || password.isBlank()) {
@@ -93,6 +102,15 @@ class AuthViewModel @Inject constructor(
                 put("password", password)
                 put("age", ageInt)
                 put("occupation", occupation)
+                put("gender", gender)
+                put("institution", institution)
+                put("department", department)
+                put("academic_year", academicYear)
+                put("working_hours", workingHours.toDoubleOrNull() ?: 0.0)
+                put("avg_screen_time", avgScreenTime.toDoubleOrNull() ?: 0.0)
+                put("avg_sleep_hours", avgSleepHours.toDoubleOrNull() ?: 0.0)
+                put("preferred_work_time", preferredWorkTime)
+                put("stress_level", stressLevel)
             }
             when (val res = networkClient.post("/register", payload)) {
                 is NetworkResult.Success -> {

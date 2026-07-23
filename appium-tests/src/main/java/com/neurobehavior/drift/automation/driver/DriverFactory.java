@@ -18,6 +18,10 @@ public class DriverFactory {
         return driver.get();
     }
 
+    public static AndroidDriver getDriverOrNull() {
+        return driver.get();
+    }
+
     private static synchronized void initializeDriver() {
         try {
             UiAutomator2Options options = new UiAutomator2Options();
@@ -27,6 +31,16 @@ public class DriverFactory {
             options.setAutomationName("UiAutomator2");
             options.setAutoGrantPermissions(true);
             options.setNoReset(false);
+            options.setCapability("appium:enforceAppInstall", true);
+            options.setCapability("appium:appWaitForLaunch", false);
+            options.setCapability("appium:adbExecTimeout", 60000);
+            options.setCapability("appium:uiautomator2ServerLaunchTimeout", 90000);
+            options.setCapability("appium:uiautomator2ServerInstallTimeout", 90000);
+            options.setCapability("appium:chromedriverEnabled", true);
+            options.setCapability("appium:chromedriver_autodownload", true);
+
+
+
             
             // Set app path if it exists, otherwise fall back to package/activity
             String appPath = ConfigManager.getAppPath();
@@ -39,9 +53,16 @@ public class DriverFactory {
             }
 
             URL url = new URL(ConfigManager.getAppiumServerUrl());
-            AndroidDriver androidDriver = new AndroidDriver(url, options);
+            org.openqa.selenium.remote.http.ClientConfig clientConfig = org.openqa.selenium.remote.http.ClientConfig.defaultConfig()
+                .baseUrl(url)
+                .connectionTimeout(java.time.Duration.ofMinutes(3))
+                .readTimeout(java.time.Duration.ofMinutes(3));
+            AndroidDriver androidDriver = new AndroidDriver(clientConfig, options);
+
+
             androidDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(ConfigManager.getImplicitWait()));
             driver.set(androidDriver);
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Failed to initialize Appium Driver: " + e.getMessage());

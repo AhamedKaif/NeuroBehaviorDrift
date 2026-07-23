@@ -17,10 +17,19 @@ class NetworkClient @Inject constructor() {
     private val TAG = "NetworkClient"
     private val BASE_URL = "http://10.0.2.2:5000"
 
+    private fun mapEndpoint(endpoint: String): String {
+        return when (endpoint) {
+            "/login" -> "/api/auth/login"
+            "/register" -> "/api/auth/register"
+            "/profile" -> "/api/profile"
+            else -> endpoint
+        }
+    }
+
     suspend fun post(endpoint: String, payload: JSONObject, token: String? = null): NetworkResult = withContext(Dispatchers.IO) {
         var conn: HttpURLConnection? = null
         try {
-            val url = URL("$BASE_URL$endpoint")
+            val url = URL("$BASE_URL${mapEndpoint(endpoint)}")
             conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "POST"
             conn.setRequestProperty("Content-Type", "application/json")
@@ -74,7 +83,7 @@ class NetworkClient @Inject constructor() {
     suspend fun get(endpoint: String, token: String?): NetworkResult = withContext(Dispatchers.IO) {
         var conn: HttpURLConnection? = null
         try {
-            val url = URL("$BASE_URL$endpoint")
+            val url = URL("$BASE_URL${mapEndpoint(endpoint)}")
             conn = url.openConnection() as HttpURLConnection
             conn.requestMethod = "GET"
             conn.setRequestProperty("Accept", "application/json")
@@ -112,6 +121,53 @@ class NetworkClient @Inject constructor() {
             }
         } catch (e: Exception) {
             Log.e(TAG, "GET error at $endpoint", e)
+            NetworkResult.Failure(-1, e.message ?: "Unknown network error")
+        } finally {
+            conn?.disconnect()
+        }
+    }
+
+    suspend fun delete(endpoint: String, token: String?): NetworkResult = withContext(Dispatchers.IO) {
+        var conn: HttpURLConnection? = null
+        try {
+            val url = URL("$BASE_URL${mapEndpoint(endpoint)}")
+            conn = url.openConnection() as HttpURLConnection
+            conn.requestMethod = "DELETE"
+            conn.setRequestProperty("Accept", "application/json")
+            if (token != null) {
+                conn.setRequestProperty("Authorization", "Bearer $token")
+            }
+            conn.connectTimeout = 10000
+            conn.readTimeout = 10000
+
+            val code = conn.responseCode
+            val isSuccess = code in 200..299
+            val stream = if (isSuccess) conn.inputStream else conn.errorStream
+            if (stream == null) {
+                return@withContext NetworkResult.Failure(code, "No response stream")
+            }
+
+            val reader = BufferedReader(InputStreamReader(stream))
+            val sb = StringBuilder()
+            var line: String?
+            while (reader.readLine().also { line = it } != null) {
+                sb.append(line)
+            }
+            reader.close()
+
+            val responseString = sb.toString()
+            if (isSuccess) {
+                NetworkResult.Success(if (responseString.isNotBlank()) JSONObject(responseString) else JSONObject())
+            } else {
+                val errorMsg = try {
+                    JSONObject(responseString).optString("error", "HTTP error $code")
+                } catch (e: Exception) {
+                    "HTTP error $code"
+                }
+                NetworkResult.Failure(code, errorMsg)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "DELETE error at $endpoint", e)
             NetworkResult.Failure(-1, e.message ?: "Unknown network error")
         } finally {
             conn?.disconnect()

@@ -34,4 +34,7 @@ tasks.test {
     useTestNG {
         suites("testng.xml")
     }
+    testLogging {
+        showStandardStreams = true
+    }
 }

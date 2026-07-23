@@ -143,33 +143,40 @@ fun PremiumTopBar(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(
-                onClick = onOpenDrawer,
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.weight(1f)
+        ) {
+            Box(
                 modifier = Modifier
-                    .semantics { this.contentDescription = "Open Navigation Drawer" }
-                    .clip(CircleShape)
-                    .background(GlassColor)
+                    .size(36.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(AIPrimary.copy(alpha = 0.1f)),
+                contentAlignment = Alignment.Center
             ) {
-                Icon(Icons.Default.Menu, contentDescription = "Open Navigation Drawer", tint = Color.White)
+                Text("🧠", fontSize = 18.sp)
             }
-            Spacer(Modifier.width(12.dp))
+            Spacer(Modifier.width(8.dp))
             Column {
                 Text(
-                    text = title,
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
+                    text = "NEURO-DRIFT",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.ExtraBold,
                     color = Color.White,
                     modifier = Modifier.semantics { this.contentDescription = "Dashboard Header" }
                 )
                 Text(
-                    text = subtitle,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.White.copy(alpha = 0.6f)
+                    text = "Cognitive Strain Monitor",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.LightGray,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
-        Row {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             IconButton(
                 onClick = onRefresh,
                 modifier = Modifier
@@ -178,14 +185,14 @@ fun PremiumTopBar(
             ) {
                 Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = Color.White)
             }
-            Spacer(Modifier.width(8.dp))
             IconButton(
-                onClick = onSettings,
+                onClick = onOpenDrawer,
                 modifier = Modifier
+                    .semantics { this.contentDescription = "Open Navigation Drawer" }
                     .clip(CircleShape)
                     .background(GlassColor)
             ) {
-                Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
+                Icon(Icons.Default.Person, contentDescription = "Open Navigation Drawer", tint = Color.White)
             }
         }
     }
